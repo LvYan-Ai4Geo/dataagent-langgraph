@@ -1,0 +1,7 @@
+2026-05-19 09:34:34.228 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:133 - Meta配置文件加载成功
+2026-05-19 09:34:34.456 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:139 - 将表信息和字段信息保存到元数据库中成功
+2026-05-19 09:34:44.164 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:143 - 将字段信息的向量索引保存到qdrant成功
+2026-05-19 09:39:21.165 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:133 - Meta配置文件加载成功
+2026-05-19 09:39:21.456 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:139 - 将表信息和字段信息保存到元数据库中成功
+2026-05-19 09:39:30.912 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:143 - 将字段信息的向量索引保存到qdrant成功
+2026-05-19 09:39:33.338 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:146 - 全文字段索引建立成功
