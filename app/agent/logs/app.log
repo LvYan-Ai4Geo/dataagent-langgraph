@@ -1,0 +1,47 @@
+2026-05-17 16:23:31.791 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 09:45:59.915 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 09:51:00.363 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 09:52:56.546 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 09:53:00.965 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_region.region_name', 'fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-05-19 09:53:47.271 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 09:53:52.620 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-05-19 10:21:03.891 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 10:21:11.137 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-19 10:21:12.804 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-05-19 13:14:47.632 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词
+2026-05-19 13:14:54.325 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-19 13:14:57.849 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:42 - 从es中召回了字段具体值：dict_keys(['dim_region.region_name.华北'])
+2026-05-19 13:14:57.986 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_region.region_name', 'fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-05-19 17:02:19.260 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['销售总额', '华北地区', '统计华北地区的销售总额', '统计']
+2026-05-19 17:02:24.470 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-19 17:02:26.242 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-05-19 17:02:28.015 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:00:21.176 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['统计', '统计华北地区中男生的销售总额', '华北地区', '男生', '销售总额']
+2026-05-21 16:16:35.693 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['男生', '统计', '华北地区', '统计华北地区中男生的销售总额', '销售总额']
+2026-05-21 16:22:08.720 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['男生', '销售总额', '华北地区', '统计', '统计华北地区中男生的销售总额']
+2026-05-21 16:22:15.519 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-21 16:22:16.899 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_customer.gender', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id', 'fact_order.order_amount', 'fact_order.order_quantity']
+2026-05-21 16:22:17.422 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:29:42.452 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['销售总额', '统计', '华北地区', '男生', '统计华北地区中男生的销售总额']
+2026-05-21 16:29:47.533 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-21 16:29:51.735 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id', 'dim_customer.gender']
+2026-05-21 16:29:51.891 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:34:53.616 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['统计', '男生', '销售总额', '华北地区', '统计华北地区中男生的销售总额']
+2026-05-21 16:34:59.731 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-21 16:35:00.613 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:35:00.920 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id', 'dim_customer.gender', 'fact_order.order_amount', 'fact_order.order_quantity']
+2026-05-21 16:39:09.169 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['统计华北地区中男生的销售总额', '统计', '销售总额', '华北地区', '男生']
+2026-05-21 16:39:13.965 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-21 16:39:15.526 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:39:16.014 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id', 'dim_customer.gender', 'fact_order.order_amount', 'fact_order.order_quantity']
+2026-05-21 16:44:20.531 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['统计华北地区中男生的销售总额', '销售总额', '统计', '华北地区', '男生']
+2026-05-21 16:44:25.075 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-21 16:44:25.676 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id', 'dim_customer.gender', 'fact_order.order_amount', 'fact_order.order_quantity']
+2026-05-21 16:44:29.355 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:50:06.121 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:31 - 成功抽取关键词:['统计', '销售总额', '男生', '华北地区', '统计华北地区中男生的销售总额']
+2026-05-21 16:50:11.831 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:43 - 从es中召回了字段具体值：['华北']
+2026-05-21 16:50:14.773 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:45 - 检索到了字段信息：['dim_customer.gender', 'dim_region.region_name', 'dim_region.region_id', 'fact_order.region_id', 'dim_region.province', 'dim_region.country', 'dim_product.category', 'fact_order.order_amount', 'fact_order.order_quantity']
+2026-05-21 16:50:15.168 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:46 - 检索到了指标信息：['GMV', 'AOV']
+2026-05-21 16:50:15.324 | INFO     | request_id - 1 | app.agent.nodes.merge_retrieved_info:merge_retrieved_info:118 - 成功合并了召回信息
+2026-05-21 16:50:19.817 | INFO     | request_id - 1 | app.agent.nodes.filter_metric:filter_metric:28 - 成功过滤了指标信息['GMV']
+2026-05-21 16:50:30.887 | INFO     | request_id - 1 | app.agent.nodes.filter_table:filter_table:37 - 过滤表信息成功：['dim_customer', 'dim_region', 'fact_order']
