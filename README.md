@@ -1,6 +1,6 @@
 # 基于LangGraph编排工作流的NL2SQL-Agent
 
-用户输入一句自然语言问题（如"统计某地区的销售总额"），Agent 会自动完成：关键词抽取 → 多路召回（字段/指标/字段值）→ 信息合并与过滤 → SQL 生成 → SQL 校验 → （失败则自动修正）→ 执行 SQL，并通过 FastAPI 以 SSE（Server-Sent Events）流式返回各步骤进度与最终查询结果。
+用户输入一句自然语言问题（如"统计某地区的销售总额"），Agent 会自动完成：关键词抽取 -> 多路召回（字段/指标/字段值）-> 信息合并与过滤 -> SQL 生成 -> SQL 校验 -> （失败则自动修正）-> 执行 SQL，并通过 FastAPI 以 SSE（Server-Sent Events）流式返回各步骤进度与最终查询结果。配合基于 LangGraph Checkpointer 的短期会话记忆，支持多轮对话追问；并提供一个 Vue3 + Vite 的灵动粒子前端界面。
 
 ---
 
@@ -10,6 +10,7 @@
 - [技术栈](#技术栈)
 - [系统架构](#系统架构)
 - [工作流详解](#工作流详解)
+- [短期会话记忆](#短期会话记忆)
 - [项目结构](#项目结构)
 - [环境准备](#环境准备)
 - [快速开始](#快速开始)
@@ -25,7 +26,9 @@
 - **LLM 关键词扩展**：每路召回前，由 LLM 根据用户问题生成针对性的扩展关键词，弥补 jieba 关键词在语义覆盖上的不足。
 - **两阶段过滤**：召回后由 LLM 对指标、表/字段做精简过滤，剔除冗余信息，保证生成 SQL 时上下文最小且精准。
 - **自动校验与修正**：生成的 SQL 先用 `EXPLAIN` 校验，失败时由 LLM 根据错误信息进行最小必要修复后再执行。
-- **流式输出**：基于 LangGraph 的 `stream_mode='custom'`，各节点实时推送执行进度，前端可展示完整推理链路。
+- **短期会话记忆**：基于 LangGraph 的 `InMemorySaver` Checkpointer，按 `thread_id` 持久化会话状态，支持多轮对话（如“再按性别细分”“改成环比”）。
+- **流式输出**：基于 LangGraph 的 `stream_mode='custom'`，各节点实时推送执行进度与最终查询结果，前端可展示完整推理链路。
+- **灵动粒子前端**：Vue3 + Vite 实现的独立前端，初次登录界面全屏粒子浮动 + 鼠标吸附，进入后展示自然语言2SQL 对话界面。
 - **元知识离线构建**：通过脚本一次性将表/字段/指标元信息同步至 MySQL、Qdrant、ES，在线查询仅做检索不做构建。
 
 ---
@@ -34,7 +37,7 @@
 
 | 类别 | 技术 |
 |------|------|
-| Agent 编排 | LangGraph |
+| Agent 编排 | LangGraph（含 InMemorySaver 短期记忆） |
 | LLM | DeepSeek（通过 langchain init_chat_model） |
 | 向量检索 | Qdrant |
 | 全文检索 | Elasticsearch（IK 中文分词） |
@@ -44,33 +47,38 @@
 | Web 框架 | FastAPI（SSE 流式响应） |
 | 配置管理 | OmegaConf |
 | 日志 | Loguru（带 request_id 链路追踪） |
+| 前端 | Vue 3 + Vite（粒子动效 + SSE 流式展示） |
 
 ---
 
 ## 系统架构
 
 ```
-┌──────────────┐     POST /api/query      ┌─────────────────┐
-│   前端/客户端  │ ──────────────────────▶ │  FastAPI (SSE)   │
-└──────────────┘                         └────────┬────────┘
-                                                  │
-                                          ┌───────▼────────┐
-                                          │ QueryService    │
-                                          └───────┬────────┘
-                                                  │ graph.astream
-                                  ┌───────────────▼───────────────┐
-                                  │       LangGraph 工作流         │
-                                  │  (12 个节点，见“工作流详解”)    │
-                                  └───┬───────┬───────┬───────────┘
-                                      │       │       │
-                          ┌───────────▼┐ ┌────▼────┐ ┌▼───────────┐
-                          │  Qdrant    │ │  Meta   │ │     ES      │
-                          │(字段/指标)  │ │  MySQL  │ │(字段值全文) │
-                          └────────────┘ └─────────┘ └────────────┘
-                                          │
-                                  ┌───────▼────────┐
-                                  │   DW MySQL     │  ← SQL 校验与执行
-                                  └────────────────┘
+┌────────────────────────┐    SSE (POST /api/query)   ┌─────────────────┐
+│  Vue3 前端 (粒子动效)    │ ────────────────────────▶ │  FastAPI (SSE)   │
+│  Login / Chat 界面      │ ◀──────────────────────── │                  │
+│  thread_id 会话标识      │   流式返回 progress/result │                  │
+└────────────────────────┘                            └────────┬────────┘
+                                                               │
+                                                       ┌───────▼────────┐
+                                                       │ QueryService    │
+                                                       │ (按 thread_id    │
+                                                       │  传入 checkpointer)│
+                                                       └───────┬────────┘
+                                                               │ graph.astream
+                                               ┌───────────────▼───────────────┐
+                                               │       LangGraph 工作流         │
+                                               │  (12 个节点 + InMemorySaver)   │
+                                               └───┬───────┬───────┬───────────┘
+                                                   │       │       │
+                                       ┌───────────▼┐ ┌────▼────┐ ┌▼───────────┐
+                                       │  Qdrant    │ │  Meta   │ │     ES      │
+                                       │(字段/指标)  │ │  MySQL  │ │(字段值全文) │
+                                       └────────────┘ └─────────┘ └────────────┘
+                                                       │
+                                               ┌───────▼────────┐
+                                               │   DW MySQL     │  ← SQL 校验与执行
+                                               └────────────────┘
 ```
 
 ---
@@ -141,7 +149,18 @@ extract_keywords ──┬──────────────┬───
 | correct_sql | `nodes/correct_sql.py` | LLM 根据错误信息做最小必要修复 |
 | run_sql | `nodes/run_sql.py` | 真正执行 SQL 并返回结果 |
 
-> **状态流转**：节点间通过 `DataAgentState`（TypedDict）传递状态；`DataAgentContext`（dataclass）作为依赖注入容器向各节点提供 Repository 与 Embedding 模型。
+> **状态流转**：节点间通过 `DataAgentState`（TypedDict）传递状态；`DataAgentContext`（dataclass）作为依赖注入容器向各节点提供 Repository 与 Embedding 模型。`messages` 字段记录多轮历史，配合 `InMemorySaver` 按 `thread_id` 持久化，实现短期会话记忆。
+
+---
+
+## 短期会话记忆
+
+Agent 通过 LangGraph 的 Checkpointer 机制实现短期会话记忆，支持多轮对话（如「再按性别细分」「改成环比」等追问）。
+
+- **持久化方式**：`app/agent/graph.py` 编译图时传入 `InMemorySaver`（模块级单例 `memory`）。状态按 `thread_id` 存储在内存中，应用重启后清空（适合单实例部署；如需跨重启/多实例持久化，可替换为基于数据库的 Checkpointer）。
+- **会话标识**：前端登录时生成随机 UUID 作为 `thread_id`（存于 localStorage），每次查询携带；后端 `QueryService` 将其放入 `config={"configurable": {"thread_id": ...}}` 传入 `graph.astream`。
+- **历史上下文**：`DataAgentState.messages` 记录每轮的 query/sql/结果摘要。`extract_keywords` 节点会读取上一轮历史并拼入当前问题，使后续召回能利用多轮信息。
+- **状态重置**：前端点击「重置」会清空 `thread_id` 并跳回登录页，开启新会话。
 
 ---
 
@@ -164,6 +183,15 @@ data-agent/
 │   ├── filter_table_info.prompt
 │   ├── generate_sql.prompt
 │   └── correct_sql.prompt
+├── frontend/                        # Vue3 + Vite 前端项目（独立）
+│   ├── package.json / vite.config.js
+│   ├── index.html
+│   └── src/
+│       ├── App.vue / main.js / router/
+│       ├── views/                   #   LoginView(粒子登录) / ChatView(NL2SQL)
+│       ├── components/              #   ParticleBackground/ChatInput/...
+│       ├── composables/useSSE.js    #   SSE 流式解析
+│       └── styles/main.css
 ├── docker/
 │   ├── docker-compose.yaml          # MySQL/ES/Qdrant/Embedding 一键部署
 │   ├── mysql/                       # 元数据库与数仓库初始化 SQL
@@ -171,8 +199,8 @@ data-agent/
 ├── logs/                            # 运行日志输出目录
 └── app/
     ├── agent/                       # Agent 核心
-    │   ├── graph.py                 #   LangGraph 工作流编排
-    │   ├── state.py                 #   工作流状态定义
+    │   ├── graph.py                 #   LangGraph 工作流编排（含 InMemorySaver 记忆）
+    │   ├── state.py                 #   工作流状态定义（含 messages 多轮历史）
     │   ├── context.py               #   运行时依赖注入容器
     │   ├── llm.py                   #   DeepSeek LLM 单例
     │   ├── prompt/prompt_loader.py  #   prompt 模板加载器
@@ -180,10 +208,10 @@ data-agent/
     ├── api/                         # FastAPI 接口层
     │   ├── lifespan.py              #   应用生命周期（客户端初始化/释放）
     │   ├── dependencies.py          #   依赖注入 provider
-    │   ├── routers/query_router.py  #   POST /api/query 路由
-    │   └── schema/query_schema.py   #   请求模型
+    │   ├── routers/query_router.py  #   POST /api/query 路由（支持 thread_id）
+    │   └── schema/query_schema.py   #   请求模型（query + thread_id）
     ├── service/                     # 业务服务层
-    │   ├── query_service.py         #   在线查询服务（驱动图 + SSE）
+    │   ├── query_service.py         #   在线查询服务（驱动图 + SSE + 会话记忆）
     │   └── meta_knowledge_service.py#   离线元知识库构建服务
     ├── clients/                     # 客户端管理器单例
     │   ├── qdrant_client_manager.py
@@ -280,12 +308,35 @@ fastapi run main.py
 
 默认监听 `http://127.0.0.1:8000`。
 
-### 步骤 3：调用查询接口
+### 步骤 3：启动前端（可选，推荐）
+
+前端为独立的 Vue3 + Vite 项目，提供粒子动效登录界面与自然语言2SQL 对话界面：
+
+```bash
+cd frontend
+npm install        # 首次需安装依赖
+npm run dev        # 开发模式，默认 http://127.0.0.1:5173
+```
+
+开发模式下，前端的 `/api` 请求会通过 Vite 代理转发到 `http://127.0.0.1:8000`（见 `frontend/vite.config.js`），因此需同时运行后端。
+
+生产构建：
+
+```bash
+cd frontend
+npm run build      # 产物输出到 frontend/dist/
+```
+
+构建产物可由 nginx 托管，或交由 FastAPI 静态托管（见下方「部署提示」）。
+
+> **界面说明**：初次进入为粒子浮动登录页，点击「进入系统」生成会话标识（thread_id）并跳转主界面；主界面展示进度时间线、生成的 SQL 与查询结果表格，支持多轮追问。
+
+### 步骤 4：调用查询接口
 
 ```bash
 curl -N -X POST http://127.0.0.1:8000/api/query \
   -H "Content-Type: application/json" \
-  -d '{"query": "统计华北地区中男生的销售总额"}'
+  -d '{"query": "统计华北地区中男生的销售总额", "thread_id": "session-1"}'
 ```
 
 返回为 SSE 流，每个 `data:` 帧为一个节点的进度或最终结果，例如：
@@ -294,8 +345,11 @@ curl -N -X POST http://127.0.0.1:8000/api/query \
 data: {"type": "progress", "step": "抽取关键词", "status": "success"}
 data: {"type": "progress", "step": "召回字段信息", "status": "running"}
 ...
+data: {"type": "result", "sql": "SELECT ...", "data": [{"...": ...}]}
 data: {"type": "progress", "step": "执行SQL语句", "status": "success"}
 ```
+
+> 携带相同的 `thread_id` 再次请求，Agent 会基于上一轮的历史 state（query/sql/结果摘要）继续累积上下文，实现多轮对话。
 
 ---
 
@@ -341,18 +395,25 @@ data: {"type": "progress", "step": "执行SQL语句", "status": "success"}
 
 ```json
 {
-  "query": "统计华北地区中男生的销售总额"
+  "query": "统计华北地区中男生的销售总额",
+  "thread_id": "session-1"
 }
 ```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `query` | string | 用户自然语言问题（必填） |
+| `thread_id` | string | 会话标识（可选）。非空时启用短期会话记忆，同一 `thread_id` 的多次请求共享历史上下文；为空时后端临时生成一个（无历史单次会话） |
 
 **响应**：`text/event-stream`，逐行 `data: <json>\n\n`，包含：
 
 | type | 字段 | 说明 |
 |------|------|------|
 | `progress` | `step`、`status` | 各节点执行进度（running/success/error） |
+| `result` | `sql`、`data` | SQL 执行结果（`data` 为结果行数组） |
 | `error` | `message` | 执行过程中抛出的异常信息（如有） |
 
-> 当前 `run_sql` 节点已执行 SQL 但未通过 stream_writer 显式推送结果数据，如需在前端拿到查询结果行，可在 `nodes/run_sql.py` 中补充 `writer({"type": "result", "data": result})`。
+> `run_sql` 节点执行 SQL 后会通过 `stream_writer` 推送 `{"type": "result", "sql": ..., "data": ...}` 帧，前端据此展示 SQL 与结果表格。同时本轮问答（query/sql/结果摘要）会写入 `state['messages']`，由 `InMemorySaver` 按 `thread_id` 持久化，供下一轮多轮对话使用。
 
 ---
 
@@ -380,7 +441,8 @@ data: {"type": "progress", "step": "执行SQL语句", "status": "success"}
 
 ## 备注
 
-- 项目使用 **uv** 管理依赖，锁文件为 `uv.lock`。
+- 项目使用 **uv** 管理后端依赖，锁文件为 `uv.lock`；前端使用 **npm** 管理依赖，位于 `frontend/`。
 - 元数据库与数仓库的表结构初始化 SQL 位于 `docker/mysql/meta.sql` 与 `docker/mysql/dw.sql`，由 MySQL 容器首次启动时自动执行。
 - ES 的 IK 分词插件已打包在 `docker/elasticsearch/plugins/`，通过自定义 Dockerfile 构建。
 - 日志输出至 `logs/app.log`，按 10MB 轮转、保留 7 天，并携带 `request_id` 便于并发请求链路追踪。
+- 短期会话记忆基于 `InMemorySaver`（内存存储），应用重启后会话历史清空；同一 `thread_id` 即代表一个会话。
