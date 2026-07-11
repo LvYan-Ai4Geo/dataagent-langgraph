@@ -1,0 +1,66 @@
+:root {
+  --bg-deep: #050b1a;
+  --bg-mid: #0a1430;
+  --primary: #4cc9f0;
+  --primary-soft: #7de0ff;
+  --accent: #b07cff;
+  --text: #e8f3ff;
+  --text-dim: #8aa3c7;
+  --success: #36e0a3;
+  --error: #ff6b8a;
+  --running: #ffd166;
+  --panel: rgba(15, 28, 60, 0.55);
+  --panel-border: rgba(124, 224, 255, 0.18);
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 50% 0%, var(--bg-mid) 0%, var(--bg-deep) 70%);
+  overflow: hidden;
+}
+
+#app {
+  position: relative;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 224, 255, 0.25);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 渐显动画 */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
