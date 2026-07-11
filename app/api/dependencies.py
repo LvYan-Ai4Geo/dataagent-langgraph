@@ -5,7 +5,7 @@ FastAPI 依赖注入提供者。
 各 provider 从对应的客户端管理器单例中获取底层客户端，再包装成 Repository。
 MySQL 的 session 通过 async sessionmaker 逐请求创建，保证请求间隔离。
 """
-from envs.nlp.Lib.typing import Annotated
+from typing import Annotated
 from fastapi.params import Depends
 from langchain_huggingface import HuggingFaceEmbeddings
 from sqlalchemy.ext.asyncio import AsyncSession

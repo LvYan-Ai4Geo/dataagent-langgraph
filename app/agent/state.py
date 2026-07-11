@@ -57,6 +57,12 @@ class DataAgentState(TypedDict):
     流转过程：
         query -> keywords -> retrieved_* -> table_infos/metric_infos
               -> date_info/db_info -> sql -> error -> (修正后)执行结果
+
+    多轮记忆：
+        messages 记录本会话（同一 thread_id）历史轮次的问答摘要，
+        由 Checkpointer 按 thread_id 持久化。extract_keywords 节点会读取
+        历史消息，将上一轮的 query/sql/结果摘要拼入当前轮上下文，
+        使召回与生成能利用多轮对话信息。
     """
     query: str                              # 用户自然语言问题
 
@@ -73,3 +79,5 @@ class DataAgentState(TypedDict):
 
     error: str                              # SQL 校验错误信息（None 表示校验通过）
     sql: str                                # 生成/修正后的 SQL 语句
+
+    messages: list[dict]                    # 多轮对话历史（每轮含 query/sql/result 摘要）

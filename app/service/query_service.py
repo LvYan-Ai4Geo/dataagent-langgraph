@@ -7,10 +7,9 @@
 流式返回给前端。
 """
 import json
+import uuid
 
-from envs.image_main.Lib.urllib import error
 from langchain_huggingface import HuggingFaceEmbeddings
-from sentry_sdk.consts import FALSE_VALUES
 
 from app.agent.context import DataAgentContext
 from app.agent.graph import graph
@@ -39,11 +38,14 @@ class QueryService:
         self.dw_mysql_repository = dw_mysql_repository
 
 
-    async def query(self,query:str):
+    async def query(self, query: str, thread_id: str | None = None):
         """
         执行自然语言查询并以 SSE 流式返回结果。
 
         :param query: 用户自然语言问题
+        :param thread_id: 会话标识。非空时启用短期会话记忆：同一 thread_id 的
+            多次请求会基于历史 state 累积上下文（由 InMemorySaver 按 thread_id 持久化），
+            支持多轮对话。为空时临时生成一个，视为无历史的单次会话。
         :yield: 形如 "data: {...}\n\n" 的 SSE 数据帧
         图以 stream_mode='custom' 运行，各节点通过 runtime.stream_writer 写出的
         字典会作为 chunk 产出，这里将其序列化为 SSE 帧。
@@ -57,10 +59,13 @@ class QueryService:
                                    meta_mysql_repository=self.meta_mysql_repository,
                                    dw_mysql_repository=self.dw_mysql_repository)
 
+        # 携带 thread_id 运行图，启用短期会话记忆
+        config = {"configurable": {"thread_id": thread_id or str(uuid.uuid4())}}
         try:
             # 流式驱动图执行，逐个产出节点进度/结果
             async for chunk in graph.astream(input=state,
                                              context=context,
+                                             config=config,
                                              stream_mode='custom'):
                 yield f'data: {json.dumps(chunk,ensure_ascii=False,default=str)}\n\n'
 
