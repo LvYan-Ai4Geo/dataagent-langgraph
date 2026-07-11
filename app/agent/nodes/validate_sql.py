@@ -27,8 +27,9 @@ async def validate_sql(state: DataAgentState, runtime: Runtime[DataAgentContext]
             # EXPLAIN 仅解析执行计划不真正执行，用于检测 SQL 语法/对象合法性
             await dw_mysql_repository.validate(sql)
             logger.info("校验SQL语句通过")
-            error = None
             writer({"type": "progress", "step": "校验SQL语句", "status": "success"})
+            # 校验通过：显式重置 error=None，供条件边与下一轮记忆正确判断
+            return {"error": None}
         except Exception as e:
             # 校验失败：记录错误信息，交由 correct_sql 节点修正
             logger.info(f"校验SQL语句失败: {str(e)}")

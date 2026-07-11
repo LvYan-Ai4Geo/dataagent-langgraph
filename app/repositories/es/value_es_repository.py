@@ -43,19 +43,19 @@ class ValueEsRepository:
         :param batch_size: 每批写入数量
         采用 ES bulk API，每个文档由一个 index 操作头 + 文档本体组成。
         """
-         for i in range(0,len(values),batch_size):
-             batch_value = values[i:i+batch_size]
-             # 获得batch_operation
-             batch_operation = []
-             for value in batch_value:
-                 batch_operation.append({
-                     "index":{
-                         '_index':self.index_name
-                     }
-                 })
-                 batch_operation.append(asdict(value))
+        for i in range(0,len(values),batch_size):
+            batch_value = values[i:i+batch_size]
+            # 获得batch_operation
+            batch_operation = []
+            for value in batch_value:
+                batch_operation.append({
+                    "index":{
+                        '_index':self.index_name
+                    }
+                })
+                batch_operation.append(asdict(value))
 
-             await self.client.bulk(operations=batch_operation)
+            await self.client.bulk(operations=batch_operation)
 
     async def search(self, keyword:str,score: float = 0.65, limit: int = 15) -> list[ValueInfo]:
         """

@@ -5,3 +5,48 @@
 2026-05-19 09:39:21.456 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:139 - 将表信息和字段信息保存到元数据库中成功
 2026-05-19 09:39:30.912 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:143 - 将字段信息的向量索引保存到qdrant成功
 2026-05-19 09:39:33.338 | INFO     | request_id - 1 | app.service.meta_knowledge_service:build:146 - 全文字段索引建立成功
+2026-07-11 11:45:23.830 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:46 - 抽取关键词成功: ['销售总额', '男生', '统计', '统计华北地区中男生的销售总额', '华北地区']
+2026-07-11 11:45:37.311 | ERROR    | request_id - 1 | app.agent.nodes.recall_value:recall_value:53 - 召回字段具体值失败: Connection timed out
+2026-07-11 11:46:51.374 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:46 - 抽取关键词成功: ['销售总额', '男生', '统计', '统计华北地区中男生的销售总额', '华北地区']
+2026-07-11 11:46:59.610 | ERROR    | request_id - 1 | app.agent.nodes.recall_column:recall_column:60 - 召回字段信息失败: 
+2026-07-11 11:55:06.901 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:46 - 抽取关键词成功: ['销售总额', '男生', '统计', '统计华北地区中男生的销售总额', '华北地区']
+2026-07-11 11:55:09.327 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:49 - 召回字段具体值成功: ['华北']
+2026-07-11 11:55:11.764 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:56 - 召回字段信息成功: ['dim_customer.gender', 'fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-07-11 11:55:12.873 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:50 - 召回指标信息成功: ['GMV', 'AOV']
+2026-07-11 11:55:13.368 | INFO     | request_id - 1 | app.agent.nodes.merge_retrieved_info:merge_retrieved_info:121 - 合并召回信息成功
+2026-07-11 11:55:15.093 | INFO     | request_id - 1 | app.agent.nodes.filter_metric:filter_metric:41 - 过滤指标信息成功: ['GMV']
+2026-07-11 11:55:16.033 | INFO     | request_id - 1 | app.agent.nodes.filter_table:filter_table:50 - 过滤表信息成功: ['dim_customer', 'fact_order', 'dim_region']
+2026-07-11 11:55:16.048 | INFO     | request_id - 1 | app.agent.nodes.add_extract_context:add_extract_context:37 - 添加额外上下文成功: date_info={'date': '2026-07-11', 'weekday': 'Saturday', 'quarter': 'Q3'}, db_info={'version': '8.0.45', 'dialect': 'mysql'}
+2026-07-11 11:55:19.989 | INFO     | request_id - 1 | app.agent.nodes.generate_sql:generate_sql:43 - 生成SQL语句成功: SELECT SUM(fo.order_amount) AS 销售总额
+FROM fact_order fo
+JOIN dim_customer dc ON fo.customer_id = dc.customer_id
+JOIN dim_region dr ON fo.region_id = dr.region_id
+WHERE dr.region_name = '华北' AND dc.gender = '男'
+2026-07-11 11:55:20.019 | INFO     | request_id - 1 | app.agent.nodes.validate_sql:validate_sql:29 - 校验SQL语句通过
+2026-07-11 11:55:20.032 | INFO     | request_id - 1 | app.agent.nodes.run_sql:run_sql:41 - 执行SQL语句成功: [{'销售总额': 12762.5}]
+2026-07-11 11:55:51.112 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:46 - 抽取关键词成功: ['各会员等级的客户数量是多少', '数量', '客户', '会员']
+2026-07-11 11:55:54.206 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:56 - 召回字段信息成功: ['dim_customer.member_level', 'fact_order.customer_id', 'dim_customer.customer_id', 'dim_customer.customer_name', 'dim_customer.gender', 'fact_order.order_quantity']
+2026-07-11 11:55:56.127 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:50 - 召回指标信息成功: ['GMV']
+2026-07-11 11:56:04.601 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:49 - 召回字段具体值成功: []
+2026-07-11 11:56:04.623 | INFO     | request_id - 1 | app.agent.nodes.merge_retrieved_info:merge_retrieved_info:121 - 合并召回信息成功
+2026-07-11 11:56:07.256 | INFO     | request_id - 1 | app.agent.nodes.filter_metric:filter_metric:41 - 过滤指标信息成功: []
+2026-07-11 11:56:09.328 | INFO     | request_id - 1 | app.agent.nodes.filter_table:filter_table:50 - 过滤表信息成功: ['dim_customer']
+2026-07-11 11:56:09.333 | INFO     | request_id - 1 | app.agent.nodes.add_extract_context:add_extract_context:37 - 添加额外上下文成功: date_info={'date': '2026-07-11', 'weekday': 'Saturday', 'quarter': 'Q3'}, db_info={'version': '8.0.45', 'dialect': 'mysql'}
+2026-07-11 11:56:12.453 | INFO     | request_id - 1 | app.agent.nodes.generate_sql:generate_sql:43 - 生成SQL语句成功: SELECT member_level, COUNT(customer_id) AS customer_count FROM dim_customer GROUP BY member_level;
+2026-07-11 11:56:12.483 | INFO     | request_id - 1 | app.agent.nodes.validate_sql:validate_sql:29 - 校验SQL语句通过
+2026-07-11 11:56:12.491 | INFO     | request_id - 1 | app.agent.nodes.run_sql:run_sql:41 - 执行SQL语句成功: [{'member_level': '黄金', 'customer_count': 6}, {'member_level': '白银', 'customer_count': 5}, {'member_level': '青铜', 'customer_count': 5}, {'member_level': '铂金', 'customer_count': 4}]
+2026-07-11 12:05:57.229 | INFO     | request_id - 1 | app.agent.nodes.extract_keywords:extract_keywords:46 - 抽取关键词成功: ['销售总额', '男生', '统计', '统计华北地区中男生的销售总额', '华北地区']
+2026-07-11 12:05:59.897 | INFO     | request_id - 1 | app.agent.nodes.recall_value:recall_value:49 - 召回字段具体值成功: ['华北']
+2026-07-11 12:06:01.984 | INFO     | request_id - 1 | app.agent.nodes.recall_column:recall_column:56 - 召回字段信息成功: ['dim_customer.gender', 'fact_order.order_amount', 'fact_order.order_quantity', 'dim_region.region_name', 'dim_region.province', 'dim_region.country', 'dim_region.region_id', 'fact_order.region_id']
+2026-07-11 12:06:02.142 | INFO     | request_id - 1 | app.agent.nodes.recall_metric:recall_metric:50 - 召回指标信息成功: ['GMV', 'AOV']
+2026-07-11 12:06:02.155 | INFO     | request_id - 1 | app.agent.nodes.merge_retrieved_info:merge_retrieved_info:121 - 合并召回信息成功
+2026-07-11 12:06:04.034 | INFO     | request_id - 1 | app.agent.nodes.filter_metric:filter_metric:41 - 过滤指标信息成功: ['GMV']
+2026-07-11 12:06:05.717 | INFO     | request_id - 1 | app.agent.nodes.filter_table:filter_table:50 - 过滤表信息成功: ['dim_customer', 'fact_order', 'dim_region']
+2026-07-11 12:06:05.725 | INFO     | request_id - 1 | app.agent.nodes.add_extract_context:add_extract_context:37 - 添加额外上下文成功: date_info={'date': '2026-07-11', 'weekday': 'Saturday', 'quarter': 'Q3'}, db_info={'version': '8.0.45', 'dialect': 'mysql'}
+2026-07-11 12:06:08.956 | INFO     | request_id - 1 | app.agent.nodes.generate_sql:generate_sql:43 - 生成SQL语句成功: SELECT SUM(f.order_amount) AS 销售总额
+FROM fact_order f
+JOIN dim_customer c ON f.customer_id = c.customer_id
+JOIN dim_region r ON f.region_id = r.region_id
+WHERE r.region_name = '华北' AND c.gender = '男';
+2026-07-11 12:06:08.972 | INFO     | request_id - 1 | app.agent.nodes.validate_sql:validate_sql:29 - 校验SQL语句通过
+2026-07-11 12:06:08.979 | INFO     | request_id - 1 | app.agent.nodes.run_sql:run_sql:41 - 执行SQL语句成功: [{'销售总额': 12762.5}]

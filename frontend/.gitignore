@@ -1,0 +1,19 @@
+# 依赖
+node_modules
+
+# 构建产物
+dist
+
+# 本地环境
+*.local
+
+# 日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 编辑器
+.vscode/*
+!.vscode/extensions.json
+.idea

@@ -17,6 +17,7 @@ LangGraph 工作流定义模块。
 通过 `DataAgentState`（TypedDict）在节点间传递状态。
 """
 import asyncio
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 
@@ -81,17 +82,22 @@ graph_builder.add_edge('add_extract_context', 'generate_sql')
 graph_builder.add_edge('generate_sql', 'validate_sql')
 
 # 条件边：根据校验结果决定走向
-#   - state['error'] is None  表示校验通过 → 执行 SQL
-#   - state['error'] 不为 None 表示校验失败 → 进入修正节点
+#   - state['error'] is None  表示校验通过 -> 执行 SQL
+#   - state['error'] 不为 None 表示校验失败 -> 进入修正节点
 graph_builder.add_conditional_edges(source='validate_sql',
-                                    path=lambda state: 'run_sql' if state['error'] is not None else 'correct_sql',
+                                    path=lambda state: 'correct_sql' if state['error'] is not None else 'run_sql',
                                     path_map={'run_sql': 'run_sql', 'correct_sql': 'correct_sql'})
 # 修正后再次执行
 graph_builder.add_edge('correct_sql', 'run_sql')
 graph_builder.add_edge('run_sql', END)
 
 # 4. 编图：将上述定义编译为可执行的图实例
-graph = graph_builder.compile()
+#    传入 InMemorySaver 作为 checkpointer，实现短期会话记忆：
+#    调用方在 graph.astream 时通过 config={"configurable": {"thread_id": ...}}
+#    指定会话标识，同一 thread_id 的多次调用会基于历史 state 累积上下文，
+#    从而支持多轮对话（如“再按性别细分”“改成环比”等追问）。
+memory = InMemorySaver()
+graph = graph_builder.compile(checkpointer=memory)
 # print(graph.get_graph().draw_mermaid())
 
 if __name__ == '__main__':
@@ -120,9 +126,12 @@ if __name__ == '__main__':
                                        meta_mysql_repository=meta_mysql_repository,
                                        dw_mysql_repository=dw_mysql_repository)
 
-            # 以 custom 流式模式运行图，逐个节点输出进度
+            # 携带 thread_id 运行图，启用短期会话记忆：
+            #   同一 thread_id 的后续调用会基于历史 state 继续累积上下文。
+            config = {"configurable": {"thread_id": "test-thread-1"}}
             async for chunk in graph.astream(input=state,
                                              context=context,
+                                             config=config,
                                              stream_mode='custom'):
                 print(chunk)
 

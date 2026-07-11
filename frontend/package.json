@@ -1,0 +1,20 @@
+{
+  "name": "data-agent-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "data-agent 自然语言2SQL 前端，灵动粒子动效风格",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.7"
+  }
+}
